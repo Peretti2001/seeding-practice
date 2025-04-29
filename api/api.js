@@ -1,6 +1,6 @@
 const express = require('express');
 const endpoints = require('../endpoints.json');
-const { getTopics } = require("./controller/nc_news.controller")
+const { getTopics, getArticleById } = require("./controller/nc_news.controller")
 const app = express();
 
 app.get('/api', (req, res) => {
@@ -8,6 +8,8 @@ app.get('/api', (req, res) => {
 });
 
 app.get('/api/topics', getTopics);
+
+app.get('/api/articles/:article_id', getArticleById);
 
 
 app.all("*splat", (req, res) => {
