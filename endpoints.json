@@ -83,6 +83,14 @@
       "comment_count": 0
     }
   }
+},
+"DELETE /api/comments/:comment_id": {
+  "description": "Deletes the comment with the given ID and returns no content (204).",
+  "queries": [],
+  "exampleResponse": {
+    "status": 204,
+    "body": null
+  }
 }
 
 }

@@ -95,4 +95,20 @@ exports.queryArticles = () => {
         return rows[0];
       });
   };
-  
+  exports.removeCommentById = (comment_id) => {
+    if (isNaN(comment_id)) {
+      return Promise.reject({ status: 400, msg: 'bad request' });
+    }
+    return db
+      .query(
+        `DELETE FROM comments
+         WHERE comment_id = $1
+         RETURNING *;`,
+        [comment_id]
+      )
+      .then(({ rows }) => {
+        if (rows.length === 0) {
+          throw { status: 404, msg: 'Comment not found' };
+        }
+      });
+  };

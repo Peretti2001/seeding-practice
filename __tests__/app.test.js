@@ -237,5 +237,30 @@ describe('PATCH /api/articles/:article_id', () => {
       });
   });
 });
+describe('DELETE /api/comments/:comment_id', () => {
+  test('204: successfully deletes a comment', () => {
+    return request(app)
+      .delete('/api/comments/1')
+      .expect(204);
+  });
+
+  test('400: invalid comment_id', () => {
+    return request(app)
+      .delete('/api/comments/not-a-number')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('bad request');
+      });
+  });
+
+  test('404: comment does not exist', () => {
+    return request(app)
+      .delete('/api/comments/9999')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Comment not found');
+      });
+  });
+});
 
 
