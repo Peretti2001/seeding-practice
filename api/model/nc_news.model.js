@@ -69,3 +69,30 @@ exports.queryArticles = () => {
       });
   };
   
+  exports.updateArticleVotes = (article_id, inc_votes) => {
+    if (inc_votes === undefined) {
+      return Promise.reject({ status: 400, msg: 'Missing required field: inc_votes' });
+    }
+    if (typeof inc_votes !== 'number' || isNaN(inc_votes)) {
+      return Promise.reject({ status: 400, msg: 'inc_votes must be a number' });
+    }
+    if (isNaN(article_id)) {
+      return Promise.reject({ status: 400, msg: 'bad request' });
+    }
+  
+    return db
+      .query(
+        `UPDATE articles
+         SET votes = votes + $1
+         WHERE article_id = $2
+         RETURNING *;`,
+        [inc_votes, article_id]
+      )
+      .then(({ rows }) => {
+        if (rows.length === 0) {
+          throw { status: 404, msg: 'Article not found' };
+        }
+        return rows[0];
+      });
+  };
+  

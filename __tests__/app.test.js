@@ -183,3 +183,59 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
+describe('PATCH /api/articles/:article_id', () => {
+  test('200: increments votes and returns updated article', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 5 })
+      .expect(200)
+      .then(({ body }) => {
+        const art = body.article;
+        expect(art.article_id).toBe(1);
+        expect(art.votes).toBeDefined();
+        expect(typeof art.votes).toBe('number');
+      });
+  });
+
+  test('400: missing inc_votes in body', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({})
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Missing required field: inc_votes');
+      });
+  });
+
+  test('400: inc_votes not a number', () => {
+    return request(app)
+      .patch('/api/articles/1')
+      .send({ inc_votes: 'five' })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('inc_votes must be a number');
+      });
+  });
+
+  test('400: invalid article_id', () => {
+    return request(app)
+      .patch('/api/articles/not-a-number')
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('bad request');
+      });
+  });
+
+  test('404: article does not exist', () => {
+    return request(app)
+      .patch('/api/articles/9999')
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Article not found');
+      });
+  });
+});
+
+
