@@ -36,3 +36,36 @@ exports.queryArticles = () => {
       return result.rows;
     });
   };
+
+  exports.insertComment = (article_id, username, body) => {
+    if (!username || !body) {
+      return Promise.reject({ status: 400, msg: 'Missing required fields' });
+    }
+    if (isNaN(article_id)) {
+      return Promise.reject({ status: 400, msg: 'bad request' });
+    }
+  
+    const checkArticle = db.query(`SELECT * FROM articles WHERE article_id = $1`, [article_id]);
+    const checkUser = db.query(`SELECT * FROM users WHERE username = $1`, [username]);
+  
+    return Promise.all([checkArticle, checkUser])
+      .then(([articleResult, userResult]) => {
+        if (articleResult.rows.length === 0) {
+          throw { status: 404, msg: 'Article not found' };
+        }
+        if (userResult.rows.length === 0) {
+          throw { status: 404, msg: 'User not found' };
+        }
+  
+        return db.query(
+          `INSERT INTO comments (author, article_id, body)
+           VALUES ($1, $2, $3)
+           RETURNING *;`,
+          [username, article_id, body]
+        );
+      })
+      .then(({ rows }) => {
+        return rows[0];
+      });
+  };
+  
