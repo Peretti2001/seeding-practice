@@ -43,5 +43,21 @@
       "article_img_url": "https://images.com/article.jpg"
       }
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+  "description": "Fetches an array of comments for the specified article ID. Comments are sorted by creation date in descending order.",
+  "queries": [],
+  "exampleResponse": {
+    "comments": [
+      {
+        "comment_id": 5,
+        "votes": 2,
+        "created_at": "2020-11-07T00:00:00.000Z",
+        "author": "rogersop",
+        "body": "Great article!",
+        "article_id": 1
+      }
+    ]
   }
+}
 }
