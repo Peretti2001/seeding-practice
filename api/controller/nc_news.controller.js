@@ -1,6 +1,6 @@
 //this is where i would get the functions from the model
 
-const { queryTopics, selectArticleById, queryArticles, insertComment, updateArticleVotes, removeCommentById } = require("../model/nc_news.model")
+const { queryTopics, selectArticleById, queryArticles, insertComment, updateArticleVotes, removeCommentById, queryUsers } = require("../model/nc_news.model")
 
 exports.getTopics = (req, res, next)=>{
     return queryTopics()
@@ -75,6 +75,14 @@ exports.deleteCommentById = (req, res, next) => {
   removeCommentById(comment_id)
     .then(() => {
       res.status(204).send();
+    })
+    .catch(next);
+};
+
+exports.getUsers = (req, res, next) => {
+  queryUsers()
+    .then((users) => {
+      res.status(200).send({ users });
     })
     .catch(next);
 };

@@ -262,5 +262,35 @@ describe('DELETE /api/comments/:comment_id', () => {
       });
   });
 });
+describe('GET /api/users', () => {
+  test('200: responds with an array of user objects', () => {
+    return request(app)
+      .get('/api/users')
+      .expect(200)
+      .then(({ body }) => {
+        const { users } = body;
+        expect(Array.isArray(users)).toBe(true);
+        expect(users.length).toBeGreaterThan(0);
+        users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String)
+            })
+          );
+        });
+      });
+  });
+
+  test('404: invalid path under /api/users returns 404', () => {
+    return request(app)
+      .get('/api/users/invalid')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('404: Not Found');
+      });
+  });
+});
 
 
