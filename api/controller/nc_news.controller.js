@@ -1,6 +1,6 @@
 //this is where i would get the functions from the model
 
-const { queryTopics, selectArticleById } = require("../model/nc_news.model")
+const { queryTopics, selectArticleById, queryArticles } = require("../model/nc_news.model")
 
 exports.getTopics = (req, res, next)=>{
     return queryTopics()
@@ -28,4 +28,17 @@ selectArticleById(article_id)
     .catch((err) => {
       next(err);
     });
+}
+
+exports.getArticles = (req, res, next)=>{
+  return queryArticles()
+  .then((articles) => {
+    if (!articles) {
+      return res.status(404).send({ msg: "404: Not Found" });
+    }
+    res.status(200).send({ articles: articles });
+  })
+  .catch((err) => {
+    next(err);
+  })
 }

@@ -10,20 +10,24 @@
     }
   },
   "GET /api/articles": {
-    "description": "serves an array of all articles",
-    "exampleResponse": {
-      "articles": [
-        {
-          "title": "Seafood substitutions are increasing",
-          "topic": "cooking",
-          "author": "weegembump",
-          "created_at": "2018-05-30T15:59:13.341Z",
-          "votes": 0,
-          "comment_count": 6
-        }
-      ]
-    }
-  },
+  "description": "Fetches an array of all articles, sorted by creation date in descending order. Each article includes a count of associated comments.",
+  "queries": [],
+  "exampleResponse": {
+    "articles": [
+      {
+        "article_id": 1,
+        "title": "Living in the shadow of a great man",
+        "topic": "mitch",
+        "author": "butter_bridge",
+        "created_at": "2020-07-09T20:31:00.000Z",
+        "votes": 100,
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "comment_count": 5
+      }
+    ]
+  }
+}
+,
   "GET /api/articles/:article_id": {
   "description": "Fetches a single article by its ID.",
   "queries": [],
