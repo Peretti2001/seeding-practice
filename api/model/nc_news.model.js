@@ -9,18 +9,31 @@ exports.queryTopics = () => {
 };
 
 exports.selectArticleById = (article_id) => {
-  if (isNaN(article_id)) {
-    return Promise.reject({ status: 400, msg: 'bad request' });
-  }
-  return db
-    .query('SELECT * FROM articles WHERE article_id = $1;', [article_id])
-    .then(({ rows }) => {
-      if (rows.length === 0) {
-        throw { status: 404, msg: '404: Not Found' };
-      }
-      return rows[0];
-    });
-};
+    if (isNaN(article_id)) return Promise.reject({ status: 400, msg: 'bad request' });
+    return db
+      .query(
+        `SELECT
+           a.author,
+           a.title,
+           a.article_id,
+           a.body,
+           a.topic,
+           a.created_at,
+           a.votes,
+           a.article_img_url,
+           COUNT(c.comment_id)::INT AS comment_count
+         FROM articles a
+         LEFT JOIN comments c ON c.article_id = a.article_id
+         WHERE a.article_id = $1
+         GROUP BY a.article_id;`,
+        [article_id]
+      )
+      .then(({ rows }) => {
+        if (rows.length === 0) throw { status: 404, msg: 'Article not found' };
+        return rows[0];
+      });
+  };
+  
 
 exports.queryArticles = (sort_by = 'created_at', order = 'DESC', topic) => {
     const validSorts = ['article_id','title','topic','author','created_at','votes','comment_count'];
