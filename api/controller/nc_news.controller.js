@@ -1,73 +1,68 @@
 //this is where i would get the functions from the model
 
-const { queryTopics, selectArticleById, queryArticles, insertComment, updateArticleVotes, removeCommentById, queryUsers } = require("../model/nc_news.model")
+const {
+  queryTopics,
+  selectArticleById,
+  queryArticles,
+  selectCommentsByArticleId,
+  insertComment,
+  updateArticleVotes,
+  removeCommentById,
+  queryUsers
+} = require('../model/nc_news.model');
 
-exports.getTopics = (req, res, next)=>{
-    return queryTopics()
+exports.getTopics = (req, res, next) => {
+  queryTopics()
     .then((topics) => {
-      if (!topics) {
-        return res.status(404).send({ msg: "404: Not Found" });
-      }
-      res.status(200).send({ topics: topics });
+      res.status(200).send({ topics });
     })
-    .catch((err) => {
-      next(err);
-    })
-}
+    .catch(next);
+};
 
-exports.getArticleById = (req, res, next)=>{
-const { article_id } = req.params;
-selectArticleById(article_id)
+exports.getArticleById = (req, res, next) => {
+  const { article_id } = req.params;
+  selectArticleById(article_id)
     .then((article) => {
-      if (!article) {
-        return res.status(404).send({ msg: "404: Not Found" });
-      }
-
       res.status(200).send({ article });
     })
-    .catch((err) => {
-      next(err);
-    });
-}
+    .catch(next);
+};
 
-exports.getArticles = (req, res, next)=>{
-  return queryArticles()
-  .then((articles) => {
-    if (!articles) {
-      return res.status(404).send({ msg: "404: Not Found" });
-    }
-    res.status(200).send({ articles: articles });
-  })
-  .catch((err) => {
-    next(err);
-  })
-}
+exports.getArticles = (req, res, next) => {
+  const { sort_by, order } = req.query;
+  queryArticles(sort_by, order)
+    .then(articles => res.status(200).send({ articles }))
+    .catch(next);
+};
+  
+
+exports.getCommentsByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  selectCommentsByArticleId(article_id)
+    .then((comments) => {
+      res.status(200).send({ comments });
+    })
+    .catch(next);
+};
 
 exports.postCommentByArticleId = (req, res, next) => {
   const { article_id } = req.params;
   const { username, body } = req.body;
-
   insertComment(article_id, username, body)
     .then((comment) => {
       res.status(201).send({ comment });
     })
-    .catch((err) => {
-      console.log("🔥 POST /comments error:", err);
-      next(err);
-    });
+    .catch(next);
 };
 
 exports.patchArticleById = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
-
   updateArticleVotes(article_id, inc_votes)
-    .then((updatedArticle) => {
-      res.status(200).send({ article: updatedArticle });
+    .then((article) => {
+      res.status(200).send({ article });
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
 exports.deleteCommentById = (req, res, next) => {

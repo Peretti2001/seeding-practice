@@ -293,4 +293,43 @@ describe('GET /api/users', () => {
   });
 });
 
+describe('GET /api/articles with queries', () => {
+  test('200: sorts by title ascending', () => {
+    return request(app)
+      .get('/api/articles?sort_by=title&order=ASC')
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy('title', { ascending: true });
+      });
+  });
+
+  test('200: sorts by votes descending', () => {
+    return request(app)
+      .get('/api/articles?sort_by=votes&order=DESC')
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toBeSortedBy('votes', { descending: true });
+      });
+  });
+
+  test('400: invalid sort_by query', () => {
+    return request(app)
+      .get('/api/articles?sort_by=notacolumn')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('invalid sort_by');
+      });
+  });
+
+  test('400: invalid order query', () => {
+    return request(app)
+      .get('/api/articles?order=sideways')
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.msg).toBe('invalid order');
+      });
+  });
+});
+
+
 
