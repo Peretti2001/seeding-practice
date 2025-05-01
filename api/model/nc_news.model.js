@@ -22,35 +22,53 @@ exports.selectArticleById = (article_id) => {
     });
 };
 
-exports.queryArticles = (sort_by = 'created_at', order = 'DESC') => {
-    const validSorts = [
-      'article_id','title','topic','author',
-      'created_at','votes','comment_count'
-    ];
+exports.queryArticles = (sort_by = 'created_at', order = 'DESC', topic) => {
+    const validSorts = ['article_id','title','topic','author','created_at','votes','comment_count'];
     const validOrders = ['ASC','DESC'];
-  
-    if (!validSorts.includes(sort_by)) {
-      return Promise.reject({ status: 400, msg: 'invalid sort_by' });
-    }
+    if (!validSorts.includes(sort_by)) return Promise.reject({ status: 400, msg: 'invalid sort_by' });
     const ord = order.toUpperCase();
-    if (!validOrders.includes(ord)) {
-      return Promise.reject({ status: 400, msg: 'invalid order' });
-    }
-  
-    return db
-      .query(
+    if (!validOrders.includes(ord)) return Promise.reject({ status: 400, msg: 'invalid order' });
+    if (!topic) {
+      return db.query(
         `SELECT
-          a.article_id, a.title, a.topic, a.author,
-          a.created_at, a.votes, a.article_img_url,
-          COUNT(c.comment_id)::INT AS comment_count
+           a.article_id,
+           a.title,
+           a.topic,
+           a.author,
+           a.created_at,
+           a.votes,
+           a.article_img_url,
+           COUNT(c.comment_id)::INT AS comment_count
          FROM articles a
-         LEFT JOIN comments c
-           ON c.article_id = a.article_id
+         LEFT JOIN comments c ON c.article_id = a.article_id
          GROUP BY a.article_id
          ORDER BY ${sort_by} ${ord};`
-      )
+      ).then(({ rows }) => rows);
+    }
+    return db.query('SELECT * FROM topics WHERE slug = $1;', [topic])
+      .then(({ rows }) => {
+        if (rows.length === 0) throw { status: 404, msg: 'Topic not found' };
+        return db.query(
+          `SELECT
+             a.article_id,
+             a.title,
+             a.topic,
+             a.author,
+             a.created_at,
+             a.votes,
+             a.article_img_url,
+             COUNT(c.comment_id)::INT AS comment_count
+           FROM articles a
+           LEFT JOIN comments c ON c.article_id = a.article_id
+           WHERE a.topic = $1
+           GROUP BY a.article_id
+           ORDER BY ${sort_by} ${ord};`,
+          [topic]
+        );
+      })
       .then(({ rows }) => rows);
   };
+  
   
 
 exports.selectCommentsByArticleId = (article_id) => {

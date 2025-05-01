@@ -29,11 +29,12 @@ exports.getArticleById = (req, res, next) => {
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order } = req.query;
-  queryArticles(sort_by, order)
+  const { sort_by, order, topic } = req.query;
+  queryArticles(sort_by, order, topic)
     .then(articles => res.status(200).send({ articles }))
     .catch(next);
 };
+
   
 
 exports.getCommentsByArticleId = (req, res, next) => {

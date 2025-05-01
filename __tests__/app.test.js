@@ -330,6 +330,36 @@ describe('GET /api/articles with queries', () => {
       });
   });
 });
+describe('GET /api/articles?topic=<slug>', () => {
+  test('200: filters by topic', () => {
+    return request(app)
+      .get('/api/articles?topic=mitch')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBeGreaterThan(0);
+        articles.forEach(a => expect(a.topic).toBe('mitch'));
+        expect(articles).toBeSortedBy('created_at', { descending: true });
+      });
+  });
+
+  test('404: invalid topic', () => {
+    return request(app)
+      .get('/api/articles?topic=nonexistent')
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.msg).toBe('Topic not found');
+      });
+  });
+
+  test('200: no topic query returns all', () => {
+    return request(app)
+      .get('/api/articles')
+      .expect(200)
+      .then(({ body: { articles } }) => {
+        expect(articles.length).toBeGreaterThan(1);
+      });
+  });
+});
 
 
 

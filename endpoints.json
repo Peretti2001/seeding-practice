@@ -10,10 +10,11 @@
     }
   },
   "GET /api/articles": {
-  "description": "Fetches an array of all articles, sorted by creation date descending by default. Supports sort_by and order queries.",
+  "description": "Fetches an array of articles, supports sort_by, order, and topic filtering.",
   "queries": [
     { "sort_by": "column to sort by (article_id, title, topic, author, created_at, votes, comment_count)" },
-    { "order": "asc or desc (defaults to desc)" }
+    { "order": "asc or desc (defaults to desc)" },
+    { "topic": "filter articles by topic slug (404 if not found)" }
   ],
   "exampleResponse": {
     "articles": [
@@ -24,12 +25,13 @@
         "author": "butter_bridge",
         "created_at": "2020-07-09T20:31:00.000Z",
         "votes": 100,
-        "article_img_url": "https://images.pexels.com/photos/158651/...",
+        "article_img_url": "https://images.pexels.com/photos/158651/…",
         "comment_count": 5
       }
     ]
   }
 }
+
 
 ,
   "GET /api/articles/:article_id": {
