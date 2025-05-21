@@ -1,15 +1,12 @@
-//this is where i would get the functions from the model
-
 const {
   queryTopics,
   selectArticleById,
   queryArticles,
-  selectCommentsByArticleId,
   insertComment,
-  updateArticleVotes,
-  removeCommentById,
-  queryUsers
-} = require('../model/nc_news.model');
+  patchArticleVotes,
+  removeComment,
+  queryUsers,
+} = require("../model/nc_news.model");
 
 exports.getTopics = (req, res, next) => {
   queryTopics()
@@ -23,30 +20,22 @@ exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
   selectArticleById(article_id)
     .then((article) => {
+      if (!article) return res.status(404).send({ msg: "404: Not Found" });
       res.status(200).send({ article });
     })
     .catch(next);
 };
 
 exports.getArticles = (req, res, next) => {
-  const { sort_by, order, topic } = req.query;
-  queryArticles(sort_by, order, topic)
-    .then(articles => res.status(200).send({ articles }))
-    .catch(next);
-};
-
-  
-
-exports.getCommentsByArticleId = (req, res, next) => {
-  const { article_id } = req.params;
-  selectCommentsByArticleId(article_id)
-    .then((comments) => {
-      res.status(200).send({ comments });
+  queryArticles(req.query)
+    .then((articles) => {
+      res.status(200).send({ articles });
     })
     .catch(next);
 };
 
 exports.postCommentByArticleId = (req, res, next) => {
+  console.log("🔥 POST /comments body:", req.body);
   const { article_id } = req.params;
   const { username, body } = req.body;
   insertComment(article_id, username, body)
@@ -59,7 +48,7 @@ exports.postCommentByArticleId = (req, res, next) => {
 exports.patchArticleById = (req, res, next) => {
   const { article_id } = req.params;
   const { inc_votes } = req.body;
-  updateArticleVotes(article_id, inc_votes)
+  patchArticleVotes(article_id, inc_votes)
     .then((article) => {
       res.status(200).send({ article });
     })
@@ -68,9 +57,9 @@ exports.patchArticleById = (req, res, next) => {
 
 exports.deleteCommentById = (req, res, next) => {
   const { comment_id } = req.params;
-  removeCommentById(comment_id)
+  removeComment(comment_id)
     .then(() => {
-      res.status(204).send();
+      res.sendStatus(204);
     })
     .catch(next);
 };

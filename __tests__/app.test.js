@@ -1,14 +1,13 @@
 const endpointsJson = require("../endpoints.json");
 const app = require("../api/api");
-const db = require('../db/connection');
-const seed = require('../db/seeds/seed');
-const data = require('../db/data/test-data/index');
-const request = require('supertest');
+const db = require("../db/connection");
+const seed = require("../db/seeds/seed");
+const data = require("../db/data/test-data/index");
+const request = require("supertest");
 const sorted = require("jest-sorted");
 
 beforeAll(() => seed(data));
 afterAll(() => db.end());
-
 
 describe("GET /api", () => {
   test("200: Responds with an object detailing the documentation for each endpoint", () => {
@@ -39,11 +38,11 @@ describe("GET /api/topics", () => {
     return request(app)
       .get("/api/error")
       .expect(404)
-      .then(({body}) => {
+      .then(({ body }) => {
         expect(body.msg).toEqual("404: Not Found");
       });
+  });
 });
-})
 
 describe("GET /api/articles/:article_id", () => {
   test("200: responds with a single article object with the correct properties", () => {
@@ -61,8 +60,8 @@ describe("GET /api/articles/:article_id", () => {
             created_at: expect.any(String),
             votes: expect.any(Number),
             article_img_url: expect.any(String),
-            comment_count: expect.any(Number)
-          })
+            comment_count: expect.any(Number),
+          }),
         );
       });
   });
@@ -72,7 +71,7 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/9999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("Article not found");
+        expect(body.msg).toBe("404: Not Found");
       });
   });
 
@@ -107,8 +106,8 @@ describe("GET /api/articles", () => {
               created_at: expect.any(String),
               votes: expect.any(Number),
               article_img_url: expect.any(String),
-              comment_count: expect.any(Number)
-            })
+              comment_count: expect.any(Number),
+            }),
           );
           expect(article).not.toHaveProperty("body");
         });
@@ -124,7 +123,7 @@ describe("POST /api/articles/:article_id/comments", () => {
       .post("/api/articles/1/comments")
       .send({
         username: "butter_bridge",
-        body: "I love this article!"
+        body: "I love this article!",
       })
       .expect(201)
       .then(({ body }) => {
@@ -136,8 +135,8 @@ describe("POST /api/articles/:article_id/comments", () => {
             article_id: 1,
             author: "butter_bridge",
             votes: 0,
-            created_at: expect.any(String)
-          })
+            created_at: expect.any(String),
+          }),
         );
       });
   });
@@ -183,89 +182,87 @@ describe("POST /api/articles/:article_id/comments", () => {
   });
 });
 
-describe('PATCH /api/articles/:article_id', () => {
-  test('200: increments votes and returns updated article', () => {
+describe("PATCH /api/articles/:article_id", () => {
+  test("200: increments votes and returns updated article", () => {
     return request(app)
-      .patch('/api/articles/1')
+      .patch("/api/articles/1")
       .send({ inc_votes: 5 })
       .expect(200)
       .then(({ body }) => {
         const art = body.article;
         expect(art.article_id).toBe(1);
         expect(art.votes).toBeDefined();
-        expect(typeof art.votes).toBe('number');
+        expect(typeof art.votes).toBe("number");
       });
   });
 
-  test('400: missing inc_votes in body', () => {
+  test("400: missing inc_votes in body", () => {
     return request(app)
-      .patch('/api/articles/1')
+      .patch("/api/articles/1")
       .send({})
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe('Missing required field: inc_votes');
+        expect(body.msg).toBe("Missing required field: inc_votes");
       });
   });
 
-  test('400: inc_votes not a number', () => {
+  test("400: inc_votes not a number", () => {
     return request(app)
-      .patch('/api/articles/1')
-      .send({ inc_votes: 'five' })
+      .patch("/api/articles/1")
+      .send({ inc_votes: "five" })
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe('inc_votes must be a number');
+        expect(body.msg).toBe("inc_votes must be a number");
       });
   });
 
-  test('400: invalid article_id', () => {
+  test("400: invalid article_id", () => {
     return request(app)
-      .patch('/api/articles/not-a-number')
+      .patch("/api/articles/not-a-number")
       .send({ inc_votes: 1 })
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe('bad request');
+        expect(body.msg).toBe("bad request");
       });
   });
 
-  test('404: article does not exist', () => {
+  test("404: article does not exist", () => {
     return request(app)
-      .patch('/api/articles/9999')
+      .patch("/api/articles/9999")
       .send({ inc_votes: 1 })
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe('Article not found');
+        expect(body.msg).toBe("Article not found");
       });
   });
 });
-describe('DELETE /api/comments/:comment_id', () => {
-  test('204: successfully deletes a comment', () => {
-    return request(app)
-      .delete('/api/comments/1')
-      .expect(204);
+describe("DELETE /api/comments/:comment_id", () => {
+  test("204: successfully deletes a comment", () => {
+    return request(app).delete("/api/comments/1").expect(204);
   });
 
-  test('400: invalid comment_id', () => {
+  test("400: invalid comment_id", () => {
     return request(app)
-      .delete('/api/comments/not-a-number')
+      .delete("/api/comments/not-a-number")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe('bad request');
+        expect(body.msg).toBe("bad request");
       });
   });
 
-  test('404: comment does not exist', () => {
+  test("404: comment does not exist", () => {
     return request(app)
-      .delete('/api/comments/9999')
+      .delete("/api/comments/9999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe('Comment not found');
+        expect(body.msg).toBe("Comment not found");
       });
   });
 });
-describe('GET /api/users', () => {
-  test('200: responds with an array of user objects', () => {
+describe("GET /api/users", () => {
+  test("200: responds with an array of user objects", () => {
     return request(app)
-      .get('/api/users')
+      .get("/api/users")
       .expect(200)
       .then(({ body }) => {
         const { users } = body;
@@ -276,90 +273,87 @@ describe('GET /api/users', () => {
             expect.objectContaining({
               username: expect.any(String),
               name: expect.any(String),
-              avatar_url: expect.any(String)
-            })
+              avatar_url: expect.any(String),
+            }),
           );
         });
       });
   });
 
-  test('404: invalid path under /api/users returns 404', () => {
+  test("404: invalid path under /api/users returns 404", () => {
     return request(app)
-      .get('/api/users/invalid')
+      .get("/api/users/invalid")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe('404: Not Found');
+        expect(body.msg).toBe("404: Not Found");
       });
   });
 });
 
-describe('GET /api/articles with queries', () => {
-  test('200: sorts by title ascending', () => {
+describe("GET /api/articles with queries", () => {
+  test("200: sorts by title ascending", () => {
     return request(app)
-      .get('/api/articles?sort_by=title&order=ASC')
+      .get("/api/articles?sort_by=title&order=ASC")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toBeSortedBy('title', { ascending: true });
+        expect(body.articles).toBeSortedBy("title", { ascending: true });
       });
   });
 
-  test('200: sorts by votes descending', () => {
+  test("200: sorts by votes descending", () => {
     return request(app)
-      .get('/api/articles?sort_by=votes&order=DESC')
+      .get("/api/articles?sort_by=votes&order=DESC")
       .expect(200)
       .then(({ body }) => {
-        expect(body.articles).toBeSortedBy('votes', { descending: true });
+        expect(body.articles).toBeSortedBy("votes", { descending: true });
       });
   });
 
-  test('400: invalid sort_by query', () => {
+  test("400: invalid sort_by query", () => {
     return request(app)
-      .get('/api/articles?sort_by=notacolumn')
+      .get("/api/articles?sort_by=notacolumn")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe('invalid sort_by');
+        expect(body.msg).toBe("invalid sort_by");
       });
   });
 
-  test('400: invalid order query', () => {
+  test("400: invalid order query", () => {
     return request(app)
-      .get('/api/articles?order=sideways')
+      .get("/api/articles?order=sideways")
       .expect(400)
       .then(({ body }) => {
-        expect(body.msg).toBe('invalid order');
+        expect(body.msg).toBe("invalid order");
       });
   });
 });
-describe('GET /api/articles?topic=<slug>', () => {
-  test('200: filters by topic', () => {
+describe("GET /api/articles?topic=<slug>", () => {
+  test("200: filters by topic", () => {
     return request(app)
-      .get('/api/articles?topic=mitch')
+      .get("/api/articles?topic=mitch")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles.length).toBeGreaterThan(0);
-        articles.forEach(a => expect(a.topic).toBe('mitch'));
-        expect(articles).toBeSortedBy('created_at', { descending: true });
+        articles.forEach((a) => expect(a.topic).toBe("mitch"));
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
 
-  test('404: invalid topic', () => {
+  test("404: invalid topic", () => {
     return request(app)
-      .get('/api/articles?topic=nonexistent')
+      .get("/api/articles?topic=nonexistent")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe('Topic not found');
+        expect(body.msg).toBe("Topic not found");
       });
   });
 
-  test('200: no topic query returns all', () => {
+  test("200: no topic query returns all", () => {
     return request(app)
-      .get('/api/articles')
+      .get("/api/articles")
       .expect(200)
       .then(({ body: { articles } }) => {
         expect(articles.length).toBeGreaterThan(1);
       });
   });
 });
-
-
-
