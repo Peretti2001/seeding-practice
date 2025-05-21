@@ -2,6 +2,7 @@ const {
   queryTopics,
   selectArticleById,
   queryArticles,
+  queryCommentsByArticleId,
   insertComment,
   patchArticleVotes,
   removeComment,
@@ -20,7 +21,7 @@ exports.getArticleById = (req, res, next) => {
   const { article_id } = req.params;
   selectArticleById(article_id)
     .then((article) => {
-      if (!article) return res.status(404).send({ msg: "404: Not Found" });
+      if (!article) return res.status(404).send({ msg: "Article not found" });
       res.status(200).send({ article });
     })
     .catch(next);
@@ -34,8 +35,16 @@ exports.getArticles = (req, res, next) => {
     .catch(next);
 };
 
+exports.getCommentsByArticleId = (req, res, next) => {
+  const { article_id } = req.params;
+  queryCommentsByArticleId(article_id)
+    .then((comments) => {
+      res.status(200).send({ comments });
+    })
+    .catch(next);
+};
+
 exports.postCommentByArticleId = (req, res, next) => {
-  console.log("🔥 POST /comments body:", req.body);
   const { article_id } = req.params;
   const { username, body } = req.body;
   insertComment(article_id, username, body)

@@ -71,7 +71,7 @@ describe("GET /api/articles/:article_id", () => {
       .get("/api/articles/9999")
       .expect(404)
       .then(({ body }) => {
-        expect(body.msg).toBe("404: Not Found");
+        expect(body.msg).toBe("Article not found");
       });
   });
 
