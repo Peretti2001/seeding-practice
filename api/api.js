@@ -1,25 +1,39 @@
 const express = require("express");
-const articlesRouter = require("./routes/articles.router"); // Make sure this file exists!
-const topicsRouter = require("./routes/topics.router"); // If you have topics
-const usersRouter = require("./routes/users.router"); // If you have users
-const commentsRouter = require("./routes/comments.router"); // If you have comments
+const cors = require("cors");
 
-const apiRouter = express.Router();
+const topicsRouter = require("./routes/topics.router");
+const articlesRouter = require("./routes/articles.router");
+const usersRouter = require("./routes/users.router");
+const commentsRouter = require("./routes/comments.router");
 
-// Add all your route handlers
-apiRouter.use("/articles", articlesRouter);
-apiRouter.use("/topics", topicsRouter);
-apiRouter.use("/users", usersRouter);
-apiRouter.use("/comments", commentsRouter);
+const endpointsJson = require("../endpoints.json");
 
-// API Home endpoint (optional)
-apiRouter.get("/", (req, res) => {
-  res.status(200).send({ msg: "Welcome to the NC News API!" });
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+// Routers
+app.get("/api", (req, res) => {
+  res.status(200).send({ endpoints: endpointsJson });
 });
 
-// Fallback 404 for undefined routes
-apiRouter.all("*", (req, res) => {
+app.use("/api/topics", topicsRouter);
+app.use("/api/articles", articlesRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/comments", commentsRouter);
+
+// 404 for invalid routes
+app.all("*", (req, res) => {
   res.status(404).send({ msg: "404: Not Found" });
 });
 
-module.exports = apiRouter;
+// Error handling
+app.use((err, req, res, next) => {
+  if (err.status && err.msg) {
+    return res.status(err.status).send({ msg: err.msg });
+  }
+  res.status(500).send({ msg: "Internal server error" });
+});
+
+module.exports = app;
