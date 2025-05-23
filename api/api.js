@@ -1,4 +1,4 @@
-// api/api.js
+// seeding-practice-main/api/api.js
 const express = require("express");
 const cors = require("cors");
 const endpoints = require("../endpoints.json");
@@ -18,32 +18,42 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Documentation endpoint
 app.get("/api", (req, res) => {
   res.status(200).send({ endpoints });
 });
+
+// Topics
 app.get("/api/topics", getTopics);
+
+// Articles
 app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles", getArticles);
+
+// Comments
 app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
 app.post("/api/articles/:article_id/comments", postCommentByArticleId);
+
+// Votes
 app.patch("/api/articles/:article_id", patchArticleById);
+
+// Delete Comment
 app.delete("/api/comments/:comment_id", deleteCommentById);
+
+// Users
 app.get("/api/users", getUsers);
 
-// catch-all fallback – use a RegExp to avoid path-to-regexp parsing errors
-app.all(/.*/, (req, res) => {
+// 404 for any other /api/* routes, using RegExp to avoid path-to-regexp errors
+app.use(/^\/api\/.*$/, (req, res) => {
   res.status(404).send({ msg: "404: Not Found" });
 });
 
-app.use((err, req, res, next) => {
-  if (err.code === "22P02") return res.status(400).send({ msg: "bad request" });
-  if (err.status && err.msg)
-    return res.status(err.status).send({ msg: err.msg });
-  next(err);
-});
-
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err);
+  if (err.status && err.msg) {
+    return res.status(err.status).send({ msg: err.msg });
+  }
   res.status(500).send({ msg: "Internal server error" });
 });
 
