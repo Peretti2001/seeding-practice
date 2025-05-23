@@ -1,60 +1,25 @@
-// seeding-practice-main/api/api.js
 const express = require("express");
-const cors = require("cors");
-const endpoints = require("../endpoints.json");
-const {
-  getTopics,
-  getArticleById,
-  getArticles,
-  getCommentsByArticleId,
-  postCommentByArticleId,
-  patchArticleById,
-  deleteCommentById,
-  getUsers,
-} = require("./controller/nc_news.controller");
+const articlesRouter = require("./routes/articles.router"); // Make sure this file exists!
+const topicsRouter = require("./routes/topics.router"); // If you have topics
+const usersRouter = require("./routes/users.router"); // If you have users
+const commentsRouter = require("./routes/comments.router"); // If you have comments
 
-const app = express();
+const apiRouter = express.Router();
 
-app.use(cors());
-app.use(express.json());
+// Add all your route handlers
+apiRouter.use("/articles", articlesRouter);
+apiRouter.use("/topics", topicsRouter);
+apiRouter.use("/users", usersRouter);
+apiRouter.use("/comments", commentsRouter);
 
-// Documentation endpoint
-app.get("/api", (req, res) => {
-  res.status(200).send({ endpoints });
+// API Home endpoint (optional)
+apiRouter.get("/", (req, res) => {
+  res.status(200).send({ msg: "Welcome to the NC News API!" });
 });
 
-// Topics
-app.get("/api/topics", getTopics);
-
-// Articles
-app.get("/api/articles/:article_id", getArticleById);
-app.get("/api/articles", getArticles);
-
-// Comments
-app.get("/api/articles/:article_id/comments", getCommentsByArticleId);
-app.post("/api/articles/:article_id/comments", postCommentByArticleId);
-
-// Votes
-app.patch("/api/articles/:article_id", patchArticleById);
-
-// Delete Comment
-app.delete("/api/comments/:comment_id", deleteCommentById);
-
-// Users
-app.get("/api/users", getUsers);
-
-// 404 for any other /api/* routes, using RegExp to avoid path-to-regexp errors
-app.use(/^\/api\/.*$/, (req, res) => {
+// Fallback 404 for undefined routes
+apiRouter.all("*", (req, res) => {
   res.status(404).send({ msg: "404: Not Found" });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  if (err.status && err.msg) {
-    return res.status(err.status).send({ msg: err.msg });
-  }
-  res.status(500).send({ msg: "Internal server error" });
-});
-
-module.exports = app;
+module.exports = apiRouter;
